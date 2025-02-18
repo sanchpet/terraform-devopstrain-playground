@@ -40,7 +40,7 @@ variable "subnet_params" {
 
 variable "first_vm_compute_resources" {
   description = "First VM cpu params"
-    type = list(object({
+    type = map(object({
       cores  = number
       core_fraction = number
       memory = number
@@ -48,19 +48,58 @@ variable "first_vm_compute_resources" {
 
   validation {
     condition = alltrue([
-      for core_fraction in var.first_vm_compute_resources[*].core_fraction :
-      core_fraction < 60
+      for config in var.first_vm_compute_resources : 
+        config.core_fraction < 60
     ])
     error_message = "We don't want to pay for such powerful machine"
   }
 }
 
 variable "instances" {
-  type    = list
-  default = ["instance-1", "instance-2"]
+  type    = map(object({
+    name = string
+    disk = string
+  }))
+  default = {
+    vm-1 = {
+      name = "instance-1"
+      disk = "disk-1"
+    }
+    vm-2 = {
+      name = "instance-2"
+      disk = "disk-2"
+    }
+  }
 }
 
 variable "disks" {
-  type    = list
-  default = ["disk-1", "disk-2"]
+  type    = map(object({
+    name = string
+    size = number
+  }))
+  default = {
+    disk-1 = {
+      name = "disk-1"
+      size = 20
+    }
+    disk-2 = {
+      name = "disk-2"
+      size = 10
+    }
+  }
+}
+
+variable "bucket_lifecycle_rules" {
+  default = [
+    {
+      id     = "tmp",
+      prefix = "/tmp"
+      expiration_days  = 30
+    },
+    {
+      id     = "log",
+      prefix = "/log"
+      expiration_days  = 90
+    }
+  ]
 }

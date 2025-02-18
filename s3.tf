@@ -50,4 +50,18 @@ resource "yandex_storage_bucket" "bucket-2" {
   versioning {
     enabled = false
   }
+
+  dynamic "lifecycle_rule" {
+    for_each = var.bucket_lifecycle_rules
+
+    content {
+      id      = lifecycle_rule.value["id"]
+      prefix  = lifecycle_rule.value["prefix"]
+      enabled = true
+
+      expiration {
+        days = lifecycle_rule.value["expiration_days"]
+      }
+    }
+  }
 }

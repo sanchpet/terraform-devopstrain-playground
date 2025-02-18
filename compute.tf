@@ -3,25 +3,27 @@ data "yandex_compute_image" "ubuntu-2204-latest" {  # image for new machine
 }
 
 resource "yandex_compute_disk" "secondary-disk-first-vm" { # Disk to save persistent data
-  count = length(var.disks)
-  name = var.disks[count.index]
-  type     = "network-hdd"
-  zone     = "ru-central1-a"
-  size     = 20
+  for_each = var.disks
+
+  name      = each.value.name
+  type      = "network-hdd"
+  zone      = "ru-central1-a"
+  size      = each.value.size
   folder_id = var.folder_id
 }
 
 resource "yandex_compute_instance" "first-vm" {
+  for_each = var.instances
+
   platform_id = "standard-v1"
   zone        = "ru-central1-a"
-  count = length(var.instances)
-  name = var.instances[count.index]
-  folder_id = var.folder_id
+  name        = each.value.name
+  folder_id   = var.folder_id
 
   resources {                   # Machine params
-    cores  = var.first_vm_compute_resources[count.index].cores
-    core_fraction = var.first_vm_compute_resources[count.index].core_fraction
-    memory = var.first_vm_compute_resources[count.index].memory
+    cores  = var.first_vm_compute_resources[each.key].cores
+    core_fraction = var.first_vm_compute_resources[each.key].core_fraction
+    memory = var.first_vm_compute_resources[each.key].memory
   }
 
   boot_disk {               # Image's ID to boot from
@@ -30,9 +32,9 @@ resource "yandex_compute_instance" "first-vm" {
     }
   }
 
-secondary_disk {            # Connect to save persistent data
-    disk_id = "${yandex_compute_disk.secondary-disk-first-vm[count.index].id}"
-  }
+  secondary_disk {            # Connect to save persistent data
+      disk_id = "${yandex_compute_disk.secondary-disk-first-vm[each.value.disk].id}"
+    }
 
   network_interface {                   # Network we created
     subnet_id = "${yandex_vpc_subnet.subnet-a.id}"
