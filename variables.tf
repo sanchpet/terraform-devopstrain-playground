@@ -40,14 +40,27 @@ variable "subnet_params" {
 
 variable "first_vm_compute_resources" {
   description = "First VM cpu params"
-    type = object({
+    type = list(object({
       cores  = number
       core_fraction = number
       memory = number
-    })
+    }))
 
   validation {
-    condition     = var.core_fraction < 60
+    condition = alltrue([
+      for core_fraction in var.first_vm_compute_resources[*].core_fraction :
+      core_fraction < 60
+    ])
     error_message = "We don't want to pay for such powerful machine"
   }
+}
+
+variable "instances" {
+  type    = list
+  default = ["instance-1", "instance-2"]
+}
+
+variable "disks" {
+  type    = list
+  default = ["disk-1", "disk-2"]
 }
