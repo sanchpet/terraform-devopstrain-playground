@@ -15,9 +15,9 @@ resource "yandex_compute_instance" "first-vm" {
   zone        = "ru-central1-a"
 
   resources {                   # Machine params
-    cores  = 2
-    core_fraction = 20
-    memory = 2
+    cores  = var.first_vm_compute_resources.cores
+    core_fraction = var.first_vm_compute_resources.core_fraction
+    memory = var.first_vm_compute_resources.memory
   }
 
   boot_disk {               # Image's ID to boot from

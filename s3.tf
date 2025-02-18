@@ -1,6 +1,6 @@
 // Создадим сервисный аккаунт
 resource "yandex_iam_service_account" "sa" {
-  name      = "tf-test-sa"
+  name      = var.service_account
   folder_id = var.folder_id
 }
 
@@ -22,7 +22,7 @@ resource "yandex_storage_bucket" "bucket" {
   access_key =  yandex_iam_service_account_static_access_key.sa-static-key.access_key
   secret_key =  yandex_iam_service_account_static_access_key.sa-static-key.secret_key
 
-  bucket = "devopstrain-learning-sanchpet-bucket" // Измените это имя слегка, т.к. оно должно быть уникальным
+  bucket = var.state_bucket
   acl    = "private"
 
   versioning {
@@ -44,7 +44,7 @@ resource "yandex_storage_bucket" "bucket-2" {
   access_key = yandex_iam_service_account_static_access_key.sa-static-key.access_key
   secret_key = yandex_iam_service_account_static_access_key.sa-static-key.secret_key
 
-  bucket = "devopstrain-learning-sanchpet-bucket-2"
+  bucket = var.second_bucket
   acl    = "private"
 
   versioning {
