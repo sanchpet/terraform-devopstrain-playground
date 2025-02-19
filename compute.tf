@@ -5,7 +5,7 @@ data "yandex_compute_image" "ubuntu-2204-latest" {  # image for new machine
 resource "yandex_compute_disk" "secondary-disk-first-vm" { # Disk to save persistent data
   for_each = var.disks
 
-  name      = each.value.name
+  name      = "${each.value.name}-${terraform.workspace}"
   type      = "network-hdd"
   zone      = "ru-central1-a"
   size      = each.value.size
@@ -17,7 +17,7 @@ resource "yandex_compute_instance" "first-vm" {
 
   platform_id = "standard-v1"
   zone        = "ru-central1-a"
-  name        = each.value.name
+  name        = "${each.value.name}-${terraform.workspace}"
   folder_id   = var.folder_id
 
   resources {                   # Machine params
