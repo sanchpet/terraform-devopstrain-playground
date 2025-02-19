@@ -36,8 +36,8 @@ resource "yandex_compute_instance" "first-vm" {
       disk_id = "${yandex_compute_disk.secondary-disk-first-vm[each.value.disk].id}"
     }
 
-  network_interface {                   # Network we created
-    subnet_id = "${yandex_vpc_subnet.subnet-a.id}"
+  network_interface {
+    subnet_id = data.terraform_remote_state.networking.outputs.subnet-id
   }
 
   metadata = {  # public ssh key
