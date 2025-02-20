@@ -1,4 +1,4 @@
-data "yandex_compute_image" "ubuntu-2204-latest" {  # image for new machine
+data "yandex_compute_image" "ubuntu-2204-latest" { # image for new machine
   family = "ubuntu-2204-lts"
 }
 
@@ -20,34 +20,34 @@ resource "yandex_compute_instance" "first-vm" {
   name        = "${each.value.name}-${terraform.workspace}"
   folder_id   = var.folder_id
 
-  resources {                   # Machine params
-    cores  = var.first_vm_compute_resources[each.key].cores
+  resources { # Machine params
+    cores         = var.first_vm_compute_resources[each.key].cores
     core_fraction = var.first_vm_compute_resources[each.key].core_fraction
-    memory = var.first_vm_compute_resources[each.key].memory
+    memory        = var.first_vm_compute_resources[each.key].memory
   }
 
-  boot_disk {               # Image's ID to boot from
+  boot_disk { # Image's ID to boot from
     initialize_params {
-      image_id = "${data.yandex_compute_image.ubuntu-2204-latest.id}"
+      image_id = data.yandex_compute_image.ubuntu-2204-latest.id
     }
   }
 
-  secondary_disk {            # Connect to save persistent data
-      disk_id = "${yandex_compute_disk.secondary-disk-first-vm[each.value.disk].id}"
-    }
+  secondary_disk { # Connect to save persistent data
+    disk_id = yandex_compute_disk.secondary-disk-first-vm[each.value.disk].id
+  }
 
   network_interface {
-    subnet_id = data.terraform_remote_state.networking.outputs.subnet-id
+    subnet_id = values(module.yc-vpc.private_subnets)[0].subnet_id
   }
 
-  metadata = {  # public ssh key
+  metadata = { # public ssh key
     foo      = "bar"
     ssh-keys = "ubuntu:${file("~/.ssh/id_ed25519.pub")}"
   }
 
-  allow_stopping_for_update = true  # explicilty alow turning off VM to updates
+  allow_stopping_for_update = true # explicilty alow turning off VM to updates
 
-  depends_on = [        # explicitly set dependency from resource, so VM will not be created if disk not created
+  depends_on = [ # explicitly set dependency from resource, so VM will not be created if disk not created
     yandex_compute_disk.secondary-disk-first-vm,
   ]
 }

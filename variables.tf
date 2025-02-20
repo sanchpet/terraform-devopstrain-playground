@@ -1,7 +1,7 @@
 variable "filename" {
   description = "Name of file for the output"
   type        = string
-  default = "output.txt"
+  default     = "output.txt"
 }
 
 variable "folder_id" {
@@ -27,9 +27,9 @@ variable "second_bucket" {
 
 variable "subnet_params" {
   description = "VPC subnet params"
-    type = object({
-      zone    = string
-      cidr = list(string)
+  type = object({
+    zone = string
+    cidr = list(string)
   })
 
   default = {
@@ -40,23 +40,23 @@ variable "subnet_params" {
 
 variable "first_vm_compute_resources" {
   description = "First VM cpu params"
-    type = map(object({
-      cores  = number
-      core_fraction = number
-      memory = number
-    }))
+  type = map(object({
+    cores         = number
+    core_fraction = number
+    memory        = number
+  }))
 
   validation {
     condition = alltrue([
-      for config in var.first_vm_compute_resources : 
-        config.core_fraction < 60
+      for config in var.first_vm_compute_resources :
+      config.core_fraction < 60
     ])
     error_message = "We don't want to pay for such powerful machine"
   }
 }
 
 variable "instances" {
-  type    = map(object({
+  type = map(object({
     name = string
     disk = string
   }))
@@ -73,7 +73,7 @@ variable "instances" {
 }
 
 variable "disks" {
-  type    = map(object({
+  type = map(object({
     name = string
     size = number
   }))
@@ -92,14 +92,14 @@ variable "disks" {
 variable "bucket_lifecycle_rules" {
   default = [
     {
-      id     = "tmp",
-      prefix = "/tmp"
-      expiration_days  = 30
+      id              = "tmp",
+      prefix          = "/tmp"
+      expiration_days = 30
     },
     {
-      id     = "log",
-      prefix = "/log"
-      expiration_days  = 90
+      id              = "log",
+      prefix          = "/log"
+      expiration_days = 90
     }
   ]
 }
